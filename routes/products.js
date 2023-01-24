@@ -4,6 +4,9 @@ const { Category } = require('../models/category');
 const router = express.Router();
 const mongoose = require('mongoose');
 const multer = require('multer');
+const Country = require('country-state-city').Country;
+const State = require('country-state-city').State;
+const City = require('country-state-city').City;
 
 const FILE_TYPE_MAP = {
     'image/png': 'png',
@@ -53,20 +56,38 @@ router.get(`/:id`, async (req, res) => {
     res.send(product);
 });
 
-router.get('/search/:key', async (req, res) => {
-    console.log("Hi",req.params.key);
-    var product = await Product.find({
-       "$or":[
-        {"jobProfile":{ $regex:req.params.key,$options:'i'}},
-        {"role":{ $regex:req.params.key,$options:'i'}},
-        {"experience":{ $regex:req.params.key,$options:'i'}},
+
+
+// router.get('/', function (req, res, next) {
     
-    ] 
+// });
+
+
+
+router.post('/search', async (req, res) => {
+    console.log("Hi", req.params.key);
+    console.log(req.body)
+    console.log(req.body.role)
+
+    var therole = req.body.role;
+    var theLocation = req.body.location;
+    var theExperience = req.body.experience;
+
+    console.log(typeof (therole))
+    console.log(therole);
+    var product = await Product.find({
+        "$or": [
+
+            { "role": { $regex: therole, $options: 'i' } },
+
+        ]
     });
 
     if (!product) {
         res.status(500).json({ success: false });
     }
+
+    console.log(product)
     res.send(product);
 });
 
@@ -84,19 +105,19 @@ router.post(`/`, uploadOptions.single('image'), async (req, res) => {
     let product = new Product({
 
 
-        jobProfile:req.body.jobProfile,
-        companyName:req.body.companyName,
-        location:req.body.location,
-        role:req.body.role,
-        salary:req.body.salary,
-        experience:req.body.experience,
-        education:req.body.education,
-        skills:req.body.skills,
-        url:req.body.url, 
-        hrNumber:req.body.hrNumber,
-        aboutCompany:req.body.aboutCompany,
-        companyAddress:req.body.companyAddress,
-        workingTime:req.body.workingTime,
+        jobProfile: req.body.jobProfile,
+        companyName: req.body.companyName,
+        location: req.body.location,
+        role: req.body.role,
+        salary: req.body.salary,
+        experience: req.body.experience,
+        education: req.body.education,
+        skills: req.body.skills,
+        url: req.body.url,
+        hrNumber: req.body.hrNumber,
+        aboutCompany: req.body.aboutCompany,
+        companyAddress: req.body.companyAddress,
+        workingTime: req.body.workingTime,
         name: req.body.name,
         description: req.body.description,
         richDescription: req.body.richDescription,
@@ -107,7 +128,12 @@ router.post(`/`, uploadOptions.single('image'), async (req, res) => {
         countInStock: req.body.countInStock,
         rating: req.body.rating,
         numReviews: req.body.numReviews,
-        isFeatured: req.body.isFeatured
+        isFeatured: req.body.isFeatured,
+
+
+        country:req.body.country,
+        state:req.body.state,
+        city:req.body.city,
     });
 
     product = await product.save();
@@ -144,16 +170,16 @@ router.put('/:id', uploadOptions.single('image'), async (req, res) => {
             jobProfile: req.body.jobProfile,
             companyName: req.body.companyName,
             location: req.body.location,
-            role:req.body.role,
+            role: req.body.role,
             salary: req.body.salary,
             experience: req.body.experience,
             education: req.body.education,
             skills: req.body.skills,
-            url:req.body.url,  
-            hrNumber:req.body.hrNumber,
+            url: req.body.url,
+            hrNumber: req.body.hrNumber,
             aboutCompany: req.body.aboutCompany,
             companyAddress: req.body.companyAddress,
-            workingTime:req.body.workingTime,
+            workingTime: req.body.workingTime,
             name: req.body.name,
             description: req.body.description,
             richDescription: req.body.richDescription,
@@ -164,7 +190,10 @@ router.put('/:id', uploadOptions.single('image'), async (req, res) => {
             countInStock: req.body.countInStock,
             rating: req.body.rating,
             numReviews: req.body.numReviews,
-            isFeatured: req.body.isFeatured
+            isFeatured: req.body.isFeatured,
+            country:req.body.country,
+            state:req.body.state,
+            city:req.body.city,
         },
         { new: true }
     );
@@ -203,7 +232,7 @@ router.get(`/get/count`, async (req, res) => {
 });
 
 router.get(`/get/featured/:count`, async (req, res) => {
-    
+
     const count = req.params.count ? req.params.count : 0;
     const products = await Product.find({ isFeatured: true }).limit(+count);
 

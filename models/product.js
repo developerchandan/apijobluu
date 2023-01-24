@@ -20,6 +20,12 @@ const productSchema = mongoose.Schema({
     workingTime:{
         type: String,
     },
+
+    country:{
+        type: String,
+    },
+    state:{ type: String,},
+    city:{ type: String,},
     hrNumber:{
         type: String,
     },
